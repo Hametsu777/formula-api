@@ -6,5 +6,6 @@ namespace FormulaApi.Repositories
     // In this case it is a Driver object. So 
     public interface IDriverRepository : IGenericRepository<Driver>
     {
+        Task<Driver?> GetByDriverNumber(string driverNb);
     }
 }

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FormulaApi.Repositories
 {
-    public class GenericRepositories<T> : IGenericRepository<T> where T : class
+    public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         // Foundations that each repository needs. First which DBContext is it going to be connecting to.
         // Which database is going to execute the information. Lastly, Logger is there to catch anything that might go wrong
@@ -12,7 +12,7 @@ namespace FormulaApi.Repositories
         internal DbSet<T> _dbSet;
         protected readonly ILogger _logger;
 
-        public GenericRepositories(DataContext context, ILogger logger)
+        public GenericRepository(DataContext context, ILogger logger)
         {
             // Initiating DataContext and logger through dependency injection. this _dbSet is going to connect to the 
             // context that we already have.
@@ -21,29 +21,32 @@ namespace FormulaApi.Repositories
             this._dbSet = context.Set<T>();
         }
 
-        public Task<bool> Add(T entity)
+        public virtual async Task<bool> Add(T entity)
         {
-            throw new NotImplementedException();
+            await _dbSet.AddAsync(entity);
+            return true;
+        }
+        // AsNoTracking means entity framework will not track the object and will just get the results.
+        public virtual async Task<IEnumerable<T>> All()
+        {
+            return await _dbSet.AsNoTracking().ToListAsync();
         }
 
-        public async Task<IEnumerable<T>> All()
+        public virtual async Task<bool> Delete(T entity)
         {
-            return await _dbSet.ToListAsync();
+            _dbSet.Remove(entity);
+            return true;
         }
 
-        public Task<bool> Delete(T entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<T?> GetById(int id)
+        public virtual async Task<T?> GetById(int id)
         {
             return await _dbSet.FindAsync(id);
         }
 
-        public Task<bool> Update(T entity)
+        public virtual async Task<bool> Update(T entity)
         {
-            throw new NotImplementedException();
+            _dbSet.Update(entity);
+            return true;
         }
     }
 }
